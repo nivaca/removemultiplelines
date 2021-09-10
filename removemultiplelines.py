@@ -1,14 +1,13 @@
 import os
-from shutil import copyfile
 import re
 
-directory = ''  # local directory
-extensions = ['.org']
-makebackup = True
+directory: str = ''  # local directory
+extensions: list[str] = ['.org']
+makebackup: bool = True
 
 
-def get_files():
-    files = []
+def get_files() -> list[str]:
+    files: list[str] = []
     allfilenames = os.listdir(directory + '.')
     for fi in allfilenames:
         ext = os.path.splitext(fi)[1]
@@ -18,14 +17,15 @@ def get_files():
     # returns a lists of file objects
     return files
 
-def removemultiplelines(fn):
+
+def removemultiplelines(fn: str) -> bool:
     changed = False
     with open(fn) as orig:
         out = orig.read()
-        patternlist =[
-        (r' +\n', r'\n'),
-        (r'\n{3,}', r'\n\n'),
-        (r'\n{2,}$', r'\n')
+        patternlist: list[tuple[str, str]] = [
+            (r' +\n', r'\n'),
+            (r'\n{3,}', r'\n\n'),
+            (r'\n{2,}$', r'\n')
         ]
         for pat in patternlist:
             if re.search(pat[0], out):
@@ -35,13 +35,14 @@ def removemultiplelines(fn):
             return False
         tmpfn = f"{fn}.tmp"
         with open(tmpfn, mode="w") as tmpf:
-                tmpf.write(out)
+            tmpf.write(out)
         if makebackup:
             os.rename(fn, f"{fn}.bak")
         else:
             os.remove(fn)
         os.rename(tmpfn, fn)
         return True
+
 
 def main():
     files = get_files()
@@ -55,6 +56,7 @@ def main():
             print(f"  Skipped: {fn}...")
 
     print(f"Removed multiple lines in {count} file(s)")
+
 
 if __name__ == "__main__":
     main()
